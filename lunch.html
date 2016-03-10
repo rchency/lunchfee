@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
+  </head>
+  <body>
+    <div id='messagesDiv'>Name Amount Date</div>
+    <input type='text' id='nameInput' placeholder='Name'>
+    <input type='text' id='messageInput' placeholder='Amount'>
+    <button type="button" id=''>Click Me!</button>
+    <script>
+      var myDataRef = new Firebase('https://lunchfeetesting.firebaseio.com/').child('test1');
+      var user = 'jason';
+      var balance = 0;
+      
+      function insertEntry (name, amt, date) {
+        myDataRef.push({name: name, amt: amt, date: date});
+      }
+
+      function test(){
+        var name = $('#nameInput').val();
+          var text = $('#messageInput').val();
+          var date = new Date().getTime();
+          myDataRef.push({name: name, amt: text, date: date});
+          $('#messageInput').val('');
+      }
+
+
+      $('#messageInput').keypress(function (e) {
+        if (e.keyCode == 13) {
+          //insertEntry();
+          test();
+        }
+      });
+
+      myDataRef.orderByChild('name').equalTo(user).on('child_added', function(snapshot) {
+        var message = snapshot.val();
+        displayChatMessage(message.name, message.amt, message.date);
+        balance += parseFloat(message.amt);
+        console.log(balance);
+      });
+
+      function displayChatMessage(name, amt, time) {
+        $('<div/>').text(amt + ' (' + new Date(time).toLocaleString() + ')').prepend($('<em/>').text(name+': ')).appendTo($('#messagesDiv'));
+        $('#messagesDiv')[0].scrollTop = $('#messagesDiv')[0].scrollHeight;
+      };
+    </script>
+  </body>
+</html>
